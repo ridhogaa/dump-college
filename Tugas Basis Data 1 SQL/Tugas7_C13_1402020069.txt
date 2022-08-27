@@ -1,0 +1,203 @@
+/*	
+Nama	: Ridho Gymnastiar Al Rasyid
+NPM		: 1402020069	
+Skenario Bisnis C13: Pendaftaran Kursus Privat Mata Pelajaran
+1. Buatlah database dengan nama sesuai case dan NPM kalian, menggunakan perintah DDL ‘create database’. Contoh Nama Database: Case01_1402001001. (Point 25)
+2. Buatlah tabel sesuai dengan physical design skenario bisnis anda yang terdapat pada file Skenario Bisnis_ERD_Physical Design_Kelas B, menggunakan perintah DDL ‘create table’. (Point 25)
+3. Buatlah sampel data di setiap tabel relasional masing-masing 5 buah data. (Point 25)
+4. Masukkan semua data yang telah dituliskan pada nomor 3, ke dalam tabel yang telah Anda buat pada nomor 2, menggunakan perintah DML ‘insert’. (Point 25)
+*/
+
+/*done*/
+CREATE DATABASE Case13_1402020069
+
+/*done*/
+CREATE TABLE alamat (
+	id char(3) primary key,
+	jalan text not null,
+	rt char(3),
+	rw char(3),
+	kelurahan text,
+	kota text not null,
+	provinsi text not null
+);
+insert into alamat values ('020', 'Jalan basis data raya 1 No.20', '001', '012', 'Cempaka putih', 'Jakarta Pusat', 'DKI Jakarta');
+insert into alamat values ('001', 'Jalan rekursif raya No.1', null, null, null, 'Jakarta Pusat', 'DKI Jakarta');
+insert into alamat values ('015', 'Jalan aljabar boolean 2 No.15', null, '002', null, 'Jakarta Pusat', 'DKI Jakarta');
+insert into alamat values ('010', 'Jalan tree graph raya 5 No.10', '005', null, null, 'Jakarta Pusat', 'DKI Jakarta');
+insert into alamat values ('013', 'Jalan algoritma raya 5 No.13', null, null, 'Kemayoran', 'Jakarta Pusat', 'DKI Jakarta');
+select * from alamat;
+delete from alamat;
+
+/*done*/
+CREATE TABLE siswa (
+	nisn char(10) not null,
+	nisn_pemberi char(10) not null,
+	id_alamat char(3) not null,
+	nama varchar(20) not null,
+	tanggal_lahir date not null,
+	kode_referensi char(10),
+	constraint siswa_pk primary key (nisn),
+	constraint siswa_fk1 foreign key (nisn_pemberi) references siswa (nisn),
+	constraint siswa_fk2 foreign key (id_alamat) references alamat (id),
+	constraint siswa_uk unique (id_alamat)
+);
+insert into siswa values ('1402020001', '1402020001', '020', 'Euclidean', 
+						 to_date('03-12-2002', 'dd-mm-yyyy'), null);
+insert into siswa values ('1402020002', '1402020002', '001', 'Suharto', 
+						 to_date('01-11-2000', 'dd-mm-yyyy'), '1402020001');
+insert into siswa values ('1402020003', '1402020003', '015', 'Newton', 
+						 to_date('04-04-2002', 'dd-mm-yyyy'), null);						 
+insert into siswa values ('1402020004', '1402020004', '010', 'Al Khawarizmi', 
+						 to_date('11-01-2001', 'dd-mm-yyyy'), '1402020003');
+insert into siswa values ('1402020005', '1402020005', '013', 'Rudolf Hitler', 
+						 to_date('03-12-2000', 'dd-mm-yyyy'), null);
+select * from siswa;
+delete from siswa;
+
+/*done*/
+CREATE TABLE telepon (
+	id char(3) primary key,
+	nisn char(10) not null references siswa,
+	nomor_telepon char(11) not null,
+	jenis_telepon varchar(12) not null
+);
+insert into telepon values ('588', '1402020001', '08131103031', 'Ponsel');
+insert into telepon values ('131', '1402020002', '02142089893', 'Rumah');
+insert into telepon values ('490', '1402020003', '08156983920', 'Ponsel');
+insert into telepon values ('783', '1402020004', '08950303120', 'Ponsel');
+insert into telepon values ('901', '1402020005', '02155883920', 'Rumah');
+select * from telepon;
+delete from telepon;
+
+/*done*/
+CREATE TABLE orang_tua (
+	id char(16) primary key,
+	nisn char(10) not null references siswa,
+	unique (nisn),
+	nama varchar(32) not null,
+	pekerjaan varchar(20) not null,
+	hubungan varchar(20) not null
+);
+insert into orang_tua values ('3171012211020011', '1402020001', 'Mia Khalifa', 'PNS', 'Ibu siswa');
+insert into orang_tua values ('3171013049500201', '1402020002', 'Johnny Sins', 'Karyawan swasta', 'Bapak siswa');
+insert into orang_tua values ('3171050302351021', '1402020003', 'Isaac Nur Hidayat', 'Bapak rumah tangga', 'Bapak siswa');
+insert into orang_tua values ('3171092015932932', '1402020004', 'Nyi Roro Manyung', 'Ibu rumah tangga', 'Ibu siswa');
+insert into orang_tua values ('3171945329529321', '1402020005', 'Zainal Hitler', 'Tentara', 'Bapak siswa');
+select * from orang_tua;
+delete from orang_tua;
+
+/*done*/
+CREATE TABLE guru (
+	id varchar(2) primary key,
+	nama varchar(20) not null
+);
+insert into guru values ('IR', 'Ibnu Rosyadi');
+insert into guru values ('BU', 'Bagas Ibnu Umar');
+insert into guru values ('FZ', 'Fauzi Zulfikar');
+insert into guru values ('WK', 'Wasis Kartika');
+insert into guru values ('JH', 'Juika Amanah');
+select * from guru;
+delete from guru;
+
+/*done*/
+CREATE TABLE mata_pelajaran (
+	id integer primary key,
+	id_guru varchar(2) not null references guru,
+	nama_matpel varchar(20) not null
+);
+insert into mata_pelajaran values (1, 'IR', 'Matematika');
+insert into mata_pelajaran values (2, 'BU', 'IPA');
+insert into mata_pelajaran values (3, 'WK', 'Bahasa Inggris');
+insert into mata_pelajaran values (4, 'JH', 'Bahasa Indonesia');
+insert into mata_pelajaran values (5, 'FZ', 'Matematika');
+select * from mata_pelajaran;
+delete from mata_pelajaran;
+
+/*done*/
+alter sequence pendaftaran_id_seq restart with 2020001;
+CREATE TABLE pendaftaran (
+	id serial primary key,
+	nisn char(10) not null references siswa,
+	id_matpel integer not null references mata_pelajaran
+);
+insert into pendaftaran values (default, 1402020001, 1);
+insert into pendaftaran values (default, 1402020002, 2);
+insert into pendaftaran values (default, 1402020003, 3);
+insert into pendaftaran values (default, 1402020004, 4);
+insert into pendaftaran values (default, 1402020005, 1);
+select * from pendaftaran;
+delete from pendaftaran;
+
+/*done*/
+CREATE TABLE gedung (
+	id integer primary key,
+	nama_gedung varchar(20) not null,
+	alamat text not null
+);
+insert into gedung values (091, 'Gedung A', 'Jalan algoritma raya 2 No.15');
+insert into gedung values (102, 'Gedung B', 'Jalan daan mogot raya 2 No.9');
+insert into gedung values (109, 'Gedung C', 'Jalan cikini raya No.3');
+insert into gedung values (134, 'Gedung D', 'Jalan grand cakung raya No.10');
+insert into gedung values (251, 'Gedung E', 'Jalan ismail marzuki No.05');
+select * from gedung;
+delete from gedung;
+
+/*done*/
+CREATE TABLE lantai (
+	no_lantai integer,
+	id_gedung integer not null references gedung, 
+	primary key (no_lantai, id_gedung)
+);
+insert into lantai values (1, 091);
+insert into lantai values (2, 102);
+insert into lantai values (3, 109);
+insert into lantai values (4, 134);
+insert into lantai values (1, 251);
+select * from lantai;
+delete from lantai;
+
+/*done*/
+CREATE TABLE ruangan (
+	no_ruangan integer,
+	no_lantai integer not null,
+	id_gedung integer not null,
+	primary key (no_ruangan, no_lantai, id_gedung),
+	foreign key (no_lantai, id_gedung) references lantai (no_lantai, id_gedung) 
+);
+insert into ruangan values (05, 1, 091);
+insert into ruangan values (13, 2, 102);
+insert into ruangan values (12, 3, 109);
+insert into ruangan values (09, 4, 134);
+insert into ruangan values (03, 1, 251);
+select * from ruangan;
+delete from ruangan;
+
+/*done*/
+CREATE TABLE tempat_belajar (
+	id char(5) primary key,
+	id_alamat char(3),
+	no_ruangan integer,
+	no_lantai_ruangan integer,
+	id_gedung_ruangan integer,
+	nisn char(10) not null,
+	unique (id_alamat, no_ruangan, no_lantai_ruangan, id_gedung_ruangan, nisn),
+	nama varchar(20),
+	tipe_tempat_belajar varchar(20) not null,
+	constraint tempat_belajar_fk1 foreign key (id_alamat) references alamat (id),
+	constraint tempat_belajar_fk2 foreign key (no_ruangan, no_lantai_ruangan, id_gedung_ruangan) 
+	references ruangan (no_ruangan, no_lantai, id_gedung),
+	foreign key (nisn) references siswa
+);
+insert into tempat_belajar values ('70090', null, 05, 1, 091, '1402020001', 'Gedung A', 'Mitra Perusahaan');
+insert into tempat_belajar values ('40001', '020', null, null, null, '1402020002', null, 'Rumah');
+insert into tempat_belajar values ('40002', '010', null, null, null, '1402020003', null, 'Rumah');
+insert into tempat_belajar values ('70100', null, 13, 2, 102, '1402020004', 'Gedung B', 'Mitra Perusahaan');
+insert into tempat_belajar values ('70110', null, 12, 3, 109, '1402020005', 'Gedung C', 'Mitra Perusahaan');
+select * from tempat_belajar;
+delete from tempat_belajar;
+
+
+
+
+

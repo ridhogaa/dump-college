@@ -1,0 +1,222 @@
+drop table if exists uas_pertemanan cascade;
+drop table if exists uas_akun cascade;
+drop table if exists uas_medsos cascade;
+drop table if exists uas_profil cascade;
+drop table if exists uas_rating cascade;
+drop table if exists uas_mediaposted cascade;
+drop table if exists uas_respon cascade;
+drop table if exists uas_hastag cascade;
+drop table if exists uas_posthastag cascade;
+drop sequence if exists uas_profil_id_seq cascade;
+
+create table uas_profil (
+    id serial not null,
+    nama_depan varchar(25) not null,
+    nama_tengah varchar(25),
+    nama_belakang varchar(25) not null,
+    biodata varchar(100) not null,
+    tgl_lahir date not null,
+    constraint uas_profil_pk primary key (id)
+);
+
+alter sequence uas_profil_id_seq restart with 101;
+
+insert into uas_profil (nama_depan, nama_tengah, nama_belakang, biodata, tgl_lahir) values
+('Rita', '', 'Marina', 'Seorang karyawati swasta di Jakarta', to_date('25-05-1978', 'dd-mm-yyyy')),
+('Diagron', '', 'Diagron', '-', to_date('15-05-1977', 'dd-mm-yyyy')),
+('Dikotaning', '','Dikotaning', 'Programmer di Tokopedia', to_date('15-06-1977', 'dd-mm-yyyy')),
+('Hisby','', '-', 'Business Analyst di BukaLapak', to_date('15-05-1987', 'dd-mm-yyyy')),
+('Nikotar','', 'Ruman', 'Bekerja di bukalapak sebagai Data Scientist', to_date('04-04-1983', 'dd-mm-yyyy')),
+('Ajis', 'Gagap', 'Budianto', '-', to_date('19-08-1997', 'dd-mm-yyyy')),
+('Eko','Tanu', 'Wijaya', '-', to_date('21-05-1998', 'dd-mm-yyyy')),
+('Billy','', 'Bolo', '-', to_date('27-08-1997', 'dd-mm-yyyy')),
+('Joni','', 'Wikarta', 'Mahasiswa', to_date('5-5-1998', 'dd-mm-yyyy')),
+('Niko','', 'Diko', 'Pelajar', to_date('15-05-1997', 'dd-mm-yyyy'));
+
+create table uas_medsos (
+    id integer not null,
+    nama varchar(25) not null,
+    constraint uas_medsos_pk primary key (id)
+);
+
+insert into uas_medsos values 
+(1, 'youtube'),
+(2, 'instagram'),
+(3, 'facebook'),
+(4, 'linkedin'),
+(5, 'twitter'),
+(6, 'snapchat');
+
+create table uas_akun (
+    id varchar(30) not null,
+    total_pengikut double precision not null,
+    tgl_gabung date not null,
+    id_profil integer not null,
+    id_medsos integer not null,
+    constraint uas_akun_pk primary key (id),
+    constraint uas_id_profil_fk foreign key (id_profil) references uas_profil(id),
+    constraint uas_id_medsos_fk foreign key (id_medsos) references uas_medsos(id)
+);
+
+insert into uas_akun values 
+('rita34', 274, to_date('05-05-2017', 'dd-mm-yyyy'), 101, 1),
+('diag68', 200000, to_date('11-05-2016', 'dd-mm-yyyy'), 102, 1),
+('dikota24', 1000, to_date('17-06-2018', 'dd-mm-yyyy'), 103, 1),
+('hisbi20', 50000, to_date('15-08-2016', 'dd-mm-yyyy'), 104, 1),
+('nikotaruman', 100000, to_date('04-08-2016', 'dd-mm-yyyy'), 105, 1),
+('doaibu', 5700, to_date('05-05-2018', 'dd-mm-yyyy'), 106, 2),
+('exo23', 6000, to_date('25-06-2018', 'dd-mm-yyyy'), 107, 2),
+('bill12', 125, to_date('19-08-2019', 'dd-mm-yyyy'), 108, 2),
+('jon12', 50, to_date('15-07-2019', 'dd-mm-yyyy'), 109, 2),
+('kokow', 200000, to_date('21-05-2016', 'dd-mm-yyyy'), 110, 2);
+
+create table uas_pertemanan (
+    tgl_berteman date not null,
+    id_akun1 varchar(30) not null,
+    id_akun2 varchar(30) not null,
+    constraint uas_id_akun_fk1 foreign key (id_akun1) references uas_akun(id),
+    constraint uas_id_akun_fk2 foreign key (id_akun2) references uas_akun(id)
+);
+
+insert into uas_pertemanan values 
+(current_timestamp, 'rita34', 'diag68'),
+(to_date('25-08-2017', 'dd-mm-yyyy'), 'rita34', 'hisbi20'),
+(to_date('10-09-2018', 'dd-mm-yyyy'), 'exo23', 'kokow'),
+(to_date('21-03-2020', 'dd-mm-yyyy'), 'kokow', 'exo23'),
+(to_date('22-08-2019', 'dd-mm-yyyy'), 'kokow', 'jon12'),
+(current_timestamp, 'dikota24', 'nikotaruman'),
+(to_date('21-03-2020', 'dd-mm-yyyy'), 'nikotaruman', 'diag68'),
+(to_date('22-09-2018', 'dd-mm-yyyy'), 'diag68', 'hisbi20');
+
+create table uas_rating (
+    id integer not null,
+    jenis_rating varchar(10) not null
+);
+
+insert into uas_rating values 
+(0, 'dislike'),
+(1, 'like'),
+(2, 'neutral');
+
+create table uas_mediaposted (
+    id integer not null,
+    caption varchar(100) not null,
+    tgl_posted date not null,
+    jenis_media varchar(10) not null,
+    banyak_gambar double precision null,
+    ukuran double precision null,
+    durasi double precision null,
+    id_akun varchar(30) not null,
+    constraint uas_mediaposted_pk primary key (id)
+);
+
+insert into uas_mediaposted values 
+(1101, 'Kota Tua', to_date('10/01/2019','dd/mm/yyyy'), 'gambar', 10, 1024, null, 'doaibu'),
+(1102, 'Jalan Jalan', to_date('20/01/2019','dd/mm/yyyy'), 'gambar', 5, 798, null, 'exo23'),
+(1201, 'pantai bali', to_date('10/02/2019','dd/mm/yyyy'), 'gambar', 7, 2000, null, 'bill12'),
+(1301, 'Work', to_date('20/02/2019','dd/mm/yyyy'), 'gambar', 1, 600, null, 'jon12'),
+(1401, 'Bali sunset', to_date('10/03/2019','dd/mm/yyyy'), 'gambar', 2, 20864, null, 'kokow'),
+(2101, 'Rapidminer Tutorial', to_date('10/01/2019','dd/mm/yyyy'), 'video', null, null, 60, 'rita34'),
+(2102, 'tutorial instalasi Oracle', to_date('25/02/2020','dd/mm/yyyy'), 'video', null, null, 120, 'rita34'),
+(2201, 'Obat flu untuk kucing', to_date('20/02/2021','dd/mm/yyyy'), 'video', null, null, 78, 'dikota24'),
+(2301, 'India Food', to_date('20/04/2021','dd/mm/yyyy'), 'video', null, null, 50, 'hisbi20'),
+(2401, 'Explore Bali', to_date('20/04/2021','dd/mm/yyyy'), 'video', null, null, 180, 'dikota24');
+
+create table uas_respon (
+    id_mediaposted integer not null,
+    id_akun varchar(30) not null,
+    id_rating integer not null
+);
+
+insert into uas_respon values 
+(1101, 'exo23', 0),
+(1102, 'exo23', 1),
+(1201, 'kokow', 1),
+(1301, 'jon12', 0),
+(1102, 'kokow', 2),
+(2101, 'diag68', 0),
+(2102, 'diag68', 2),
+(2201, 'nikotaruman', 1),
+(2301, 'rita34', 0),
+(2102, 'nikotaruman', 2);
+
+create table uas_hastag (
+    nama_hastag varchar(50) not null,
+    constraint uas_hastag_pk primary key (nama_hastag)
+);
+
+insert into uas_hastag values 
+('#indonesia'),
+('#jakarta'),
+('#kotatua'),
+('#pantai'),
+('#kampusmerdeka'),
+('#bali'),
+('#database'),
+('#animal'),
+('#hobi'),
+('#food'),
+('#travelling'), 
+('#fotografi'),
+('#teknologi'),
+('#kuliner'),
+('#budaya');
+
+create table uas_posthastag (
+    id_mediaposted integer not null,
+    nama_hastag varchar(50) not null
+);
+
+insert into uas_posthastag values 
+(1101,'#kotatua'),
+(1101,'#jakarta'),
+(1101,'#budaya'),
+(1102,'#jakarta'),
+(1201,'#pantai'),
+(1401,'#bali'),
+(1401,'#pantai'),
+(2101,'#database'),
+(2102,'#database'),
+(2102,'#teknologi'),
+(2201,'#animal'),
+(2301,'#food'),
+(2301,'#kuliner'),
+(2401,'#travelling'),
+(2401,'#pantai');
+
+select * from uas_pertemanan
+select * from uas_akun
+select * from uas_medsos
+select * from uas_profil
+select * from uas_rating
+select * from uas_mediaposted
+select * from uas_respon
+select * from uas_hastag
+select * from uas_posthastag
+
+-- nomor 1 
+alter table uas_posthastag add primary key (id_mediaposted, nama_hastag);
+
+-- nomor 2
+select id from uas_akun where total_pengikut < 120000 order by total_pengikut desc;
+
+-- nomor 3
+select p.nama_depan, count(m.caption) total_postingan 
+from uas_profil p inner join uas_akun a on p.id = a.id_profil
+inner join uas_mediaposted m on a.id = m.id_akun
+where p.nama_depan like '%o' or p.nama_belakang like '%o'
+group by p.nama_depan;
+
+--4
+select m.id, m.nama, a.id, 
+p.nama_depan || ' ' || p.nama_tengah || ' ' || p.nama_belakang as nama_lengkap
+from uas_medsos m left outer join uas_akun a on m.id = a.id_medsos
+left outer join uas_profil p on p.id = a.id_profil
+
+--5
+update uas_akun set total_pengikut = 117 where id = 'bill12';
+
+--6 
+select count(id) banyak_akun from uas_akun where date_part('year', tgl_gabung) < '2017';
+
+

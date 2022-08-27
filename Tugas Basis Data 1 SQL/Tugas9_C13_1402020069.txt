@@ -1,0 +1,300 @@
+--drop table 
+
+drop table if exists tempat_belajar cascade;
+drop table if exists telepon cascade;
+drop table if exists siswa cascade;
+drop table if exists ruangan cascade;
+drop table if exists pendaftaran cascade;
+drop table if exists orang_tua cascade;
+drop table if exists mata_pelajaran cascade;
+drop table if exists lantai cascade;
+drop table if exists guru cascade;
+drop table if exists gedung cascade;
+drop table if exists alamat cascade;
+
+-- Create table 
+
+CREATE TABLE alamat (
+	id serial primary key,
+	jalan text not null,
+	rt int,
+	rw int,
+	kelurahan varchar(20),
+	kota varchar(20) not null,
+	provinsi varchar(20) not null
+);
+alter sequence alamat_id_seq restart with 100;
+
+CREATE TABLE siswa (
+	nisn varchar(10) not null,
+	nisn_pemberi varchar(10) not null,
+	id_alamat int not null,
+	nama varchar(20) not null,
+	tanggal_lahir date not null,
+	kode_referensi varchar(10),
+	constraint siswa_pk primary key (nisn),
+	constraint siswa_fk1 foreign key (nisn_pemberi) references siswa (nisn),
+	constraint siswa_fk2 foreign key (id_alamat) references alamat (id),
+	constraint siswa_uk unique (id_alamat)
+);
+
+CREATE TABLE telepon (
+	id serial primary key,
+	nisn varchar(10) not null,
+	nomor_telepon varchar(12) not null,
+	jenis_telepon varchar(20) not null,
+	foreign key (nisn) references siswa (nisn)
+);
+alter sequence telepon_id_seq restart with 300;
+
+CREATE TABLE orang_tua (
+	id serial primary key,
+	nisn varchar(10) not null,
+	unique (nisn),
+	nama varchar(32) not null,
+	pekerjaan varchar(30) not null,
+	hubungan varchar(30) not null,
+	foreign key (nisn) references siswa (nisn)
+);
+alter sequence orang_tua_id_seq restart with 200;
+
+CREATE TABLE guru (
+	id serial primary key,
+	nama varchar(30) not null
+);
+alter sequence guru_id_seq restart with 600;
+
+CREATE TABLE mata_pelajaran (
+	id serial primary key,
+	id_guru int not null,
+	nama_matpel varchar(20) not null,
+	foreign key (id_guru) references guru(id)
+);
+alter sequence mata_pelajaran_id_seq restart with 50;
+
+CREATE TABLE pendaftaran (
+	id serial primary key,
+	nisn varchar(10) not null,
+	id_matpel integer not null,
+	harga_pendaftaran integer not null,
+	foreign key (nisn) references siswa(nisn),
+	foreign key (id_matpel) references mata_pelajaran(id)
+);
+alter sequence pendaftaran_id_seq restart with 500;
+
+CREATE TABLE gedung (
+	id serial primary key,
+	nama_gedung varchar(20) not null,
+	alamat varchar(20) not null
+);
+alter sequence gedung_id_seq restart with 700;
+
+CREATE TABLE lantai (
+	nomor serial,
+	id_gedung integer not null, 
+	primary key (nomor, id_gedung),
+	foreign key (id_gedung) references gedung(id)
+);
+alter sequence lantai_nomor_seq restart with 800;
+
+CREATE TABLE ruangan (
+	nomor serial,
+	nomor_lantai integer not null,
+	id_gedung_lantai integer not null,
+	primary key (nomor, nomor_lantai, id_gedung_lantai),
+	foreign key (nomor_lantai, id_gedung_lantai) references lantai (nomor, id_gedung) 
+);
+alter sequence ruangan_nomor_seq restart with 900;
+
+CREATE TABLE tempat_belajar (
+	id serial primary key,
+	id_alamat int,
+	nomor_ruangan integer,
+	nomor_lantai_ruangan integer,
+	id_gedung_ruangan integer,
+	nisn varchar(10) not null,
+	unique (id_alamat, nomor_ruangan, nomor_lantai_ruangan, id_gedung_ruangan, nisn),
+	nama varchar(30),
+	tipe_tempat_belajar varchar(30) not null,
+	constraint tempat_belajar_fk1 foreign key (id_alamat) references alamat (id),
+	constraint tempat_belajar_fk2 foreign key (nomor_ruangan, nomor_lantai_ruangan, id_gedung_ruangan) 
+		references ruangan (nomor, nomor_lantai, id_gedung_lantai),
+	constraint tempat_belajar_fk3 foreign key (nisn) 
+		references siswa (nisn)
+);
+alter sequence tempat_belajar_id_seq restart with 1000;
+
+-- Insert Table
+
+insert into alamat (jalan, rt, rw, kelurahan, kota, provinsi) values 
+('Jalan Klender', '001', '012', 'Duren Sawit', 'Jakarta Timur', 'DKI Jakarta'),
+('Jalan Jatinegara', null, null, null, 'Jakarta Timur', 'DKI Jakarta'),
+('Jalan Mambo', null, '002', null, 'Jakarta Utara', 'DKI Jakarta'),
+('Jalan Cempaka Putih', '005', null, null, 'Jakarta Pusat', 'DKI Jakarta'),
+('Jalan Perintis', null, null, 'Pulogadung', 'Jakarta Timur', 'DKI Jakarta'),
+('Jalan Tebet Barat', '003', '015', 'Tebet', 'Jakarta Selatan', 'DKI Jakarta'),
+('Jalan Cakung Raya', null, null, null, 'Jakarta Timur', 'DKI Jakarta'),
+('Jalan Kemang Raya', '009', '001', 'Kemang', 'Jakarta Selatan', 'DKI Jakarta'),
+('Jalan Cipinang Barat', '031', null, 'Cipinang', 'Jakarta Timur', 'DKI Jakarta'),
+('Jalan Satrio', '023', '004', 'Kuningan', 'Jakarta Selatan', 'DKI Jakarta');
+
+insert into siswa values 
+('1402019075', '1402019075', '101', 'Muhammad Yuhari', '2000-10-1', null),
+('1402019076', '1402019076', '104', 'Muhammad Rohfi', '2000-04-29', null),
+('1402019078', '1402019076', '103', 'Naufal Syarif', '2000-06-10', '1402019076'),
+('1402019131', '1402019076', '100', 'Yasin Alfi', '1999-02-23', '1402019076'),
+('1402019111', '1402019131', '102', 'Aprillia Nur', '2000-04-20', '1402019131'),
+('1402019086', '1402019076', '105', 'Osa Nurul', '2000-05-23', '1402019076'),
+('1402019060', '1402019076', '106', 'Muhammad Taufik', '2000-01-13', '1402019076'),
+('1402019098', '1402019098', '107', 'Shoibul Kahfi', '1995-12-30', null);
+
+insert into telepon (nisn, nomor_telepon, jenis_telepon)values 
+('1402019075', '089123131312', 'Seluler'),
+('1402019076', '087872731345', 'Seluler'),
+('1402019078', '021943234242', 'Rumah'),
+('1402019131', '089343414131', 'Seluler'),
+('1402019111', '021394542523', 'Rumah'),
+('1402019098', '021134253434', 'Rumah'),
+('1402019086', '082131414134', 'Seluler'),
+('1402019060', '085131423421', 'Seluler');
+
+insert into orang_tua (nisn, nama, pekerjaan, hubungan)values 
+('1402019075', 'Suminah', 'Ibu Rumah Tangga', 'Ibu'),
+('1402019076', 'Abdul', 'Pengusaha', 'Ayah'),
+('1402019078', 'Jajang', 'Guru', 'Ayah'),
+('1402019131', 'Jamil Anam', 'Programer', 'Ayah'),
+('1402019111', 'Budiyah', 'Ibu Rumah Tangga', 'Ibu'),
+('1402019098', 'Bambang', 'Pengusaha', 'Ayah'),
+('1402019086', 'Sukijem', 'Ibu Rumah Tangga', 'Ibu'),
+('1402019060', 'Jajang', 'Ibu Rumah Tangga', 'Ibu');
+
+insert into guru values 
+(default, 'Juikah Amanah'),
+(default, 'Sutikno'),
+(default, 'Saiful Adi'),
+(default, 'Ivo Nila'),
+(default, 'Kabul Kusnandar');
+
+insert into mata_pelajaran (id_guru, nama_matpel)values 
+('600', 'Matematika'),
+('601', 'Bahasa Indo'),
+('602', 'IPA'),
+('603', 'Bahasa Inggris'),
+('604', 'Matematika');
+
+insert into pendaftaran (nisn, id_matpel, harga_pendaftaran)values 
+('1402019075', '50', '300000'),
+('1402019076', '51', '200000'),
+('1402019078', '52', '200000'),
+('1402019076', '53', '400000'),
+('1402019076', '50', '300000'),
+('1402019131', '53', '400000'),
+('1402019131', '50', '300000'),
+('1402019111', '50', '300000'),
+('1402019098', '50', '300000'),
+('1402019086', '54', '300000'),
+('1402019076', '53', '400000'),
+('1402019060', '53', '400000'),
+('1402019086', '53', '400000');
+
+insert into gedung (nama_gedung, alamat)values 
+('Gedung A', 'Jalan Daan Mogot'),
+('Gedung B', 'Jalan Dewi Sartika'),
+('Gedung C', 'Jalan Gajah Mada'),
+('Gedung D', 'Jalan Dewi Sartika'),
+('Gedung E', 'Jalan HR Rasuna Said');
+
+insert into lantai (id_gedung)values 
+('700'),
+('700'),
+('701'),
+('702'),
+('703'),
+('704'),
+('700'),
+('704');
+
+insert into ruangan (nomor_lantai, id_gedung_lantai)values 
+('800', '700'),
+('800', '700'),
+('801', '700'),
+('801', '700'),
+('802', '701'),
+('803', '702'),
+('804', '703'),
+('805', '704'),
+('806', '700'),
+('807', '704');
+
+insert into tempat_belajar (id_alamat, nomor_ruangan, nomor_lantai_ruangan, id_gedung_ruangan, nisn, nama, tipe_tempat_belajar)values 
+('100', null, null, null, '1402019131', null, 'Rumah Siswa'),
+(null, 900, 800, 700, '1402019078', 'Mitra', 'Mitra Perusahaan'),
+('104', null, null, null, '1402019076', null, 'Rumah Siswa'),
+('102', null, null, null, '1402019111', null, 'Rumah Siswa'),
+(null, 902, 801, 700, '1402019075', 'Mitra', 'Mitra Perusahaan'),
+('105', null, null, null, '1402019086', null, 'Rumah Siswa'),
+('106', null, null, null, '1402019060', null, 'Rumah Siswa'),
+(null, 907, 805, 704, '1402019098', 'Mitra', 'Mitra Perusahaan');
+
+-- Select table
+
+select * from alamat;
+select * from gedung;
+select * from guru;
+select * from lantai;
+select * from mata_pelajaran;
+select * from orang_tua;
+select * from pendaftaran;
+select * from ruangan;
+select * from siswa;
+select * from telepon;
+select * from tempat_belajar;
+
+-- Ridho Gymnastiar Al Rasyid 1402020069 -- 
+-- soal nomor 1 -- done
+select s.nama as nama_siswa, o.nama as nama_ortu
+from siswa s, orang_tua o, telepon t
+where length(o.nama) < 7 and t.jenis_telepon = 'Rumah' and s.kode_referensi is null
+group by s.nama, o.nama
+
+-- soal nomor 2 -- done
+select g.nama, count(p.id_matpel) as total_siswa, 
+count(p.id_matpel) * p.harga_pendaftaran as jumlah_uang_terdaftar
+from guru g inner join mata_pelajaran m on g.id = m.id_guru
+inner join pendaftaran p on m.id = p.id_matpel
+group by g.nama, p.harga_pendaftaran
+having p.harga_pendaftaran < 400000
+
+-- soal nomor 3 -- done
+select g.nama_gedung, count(r.nomor) as total_ruangan
+from gedung g inner join ruangan r
+on g.id = r.id_gedung_lantai
+group by g.nama_gedung
+order by g.nama_gedung desc
+
+-- soal nomor 4 -- done
+select t.tipe_tempat_belajar, r.nomor as nomor_ruangan, a.kota, count(a.kota) % 2 as manipulasi
+from tempat_belajar t left outer join alamat a on t.id_alamat = a.id
+left outer join ruangan r on t.nomor_ruangan = r.nomor
+group by t.tipe_tempat_belajar, r.nomor, a.kota
+having a.kota not like 'Jakarta Utara' or r.nomor is not null
+order by r.nomor nulls first
+
+-- soal nomor 5 -- done
+select s.nama as nama_siswa, a.jalan, count(p.id_matpel) as total_daftar
+from siswa s inner join alamat a on s.id_alamat = a.id
+inner join pendaftaran p on s.nisn = p.nisn
+inner join mata_pelajaran m on m.id = p.id_matpel
+group by s.nama, a.jalan
+having a.jalan not like '%u%'
+order by length(s.nama) asc
+
+
+
+
+
+
+
+
+
+
